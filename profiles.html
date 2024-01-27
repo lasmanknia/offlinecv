@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="navbar.css">
+</head>
+<style>
+    body{
+        background-image: none;
+    }
+#content{
+   width: 100vw;  
+}
+#profile{
+   text-align: center;
+}
+.s1{
+    margin-top: 10vh;
+    color: black;
+}
+.s1 img{
+    margin: 5px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 10px double rgb(123, 121, 121);
+    padding: 2px;
+}
+
+.s1 p:nth-child(2){
+    font-size: 1.3rem;
+}
+.s1 p:nth-child(3){
+    font-size: 0.8rem;
+}
+.s2{
+    display: flex;
+    justify-content: center;
+    margin: 20px auto;
+    border-radius: 6px;
+    background-color: #ecf0f1;
+    width: 75vw;
+    overflow: hidden;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+.s2 p{
+    padding: 10px;
+    width: 25vw;
+    line-height: 1.5rem;
+}
+.s2 p:nth-child(2){
+    border-left: 0.4px solid rgba(0, 0, 0, 0.527);
+    border-right: 0.4px solid rgba(0, 0, 0, 0.527);
+}
+.s3{
+    text-align: left;
+    padding: 10px;
+    box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;   
+    padding: 5px 20px;
+}
+.s3 p{  
+    margin: 5px;
+}
+.s3 p:nth-child(odd){
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-top: 15px;
+}
+.s3 p:nth-child(even){
+    border-bottom: 0.5px solid;
+    padding-bottom: 5px;
+    font-size: 0.9rem;
+}
+.s3 p:last-child{
+    border-bottom: none;
+}
+.ediki a {
+    display: inline-block;
+    margin: 5px;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #4CAF50;
+    border: 2px solid #4CAF50;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    font-family: 'Arial', sans-serif;
+}
+
+.ediki a:hover {
+    background-color: #45a049;
+    border-color: #45a049;
+    color: #fff;
+}
+
+.ediki a:active {
+    background-color: #3e8e41;
+    border-color: #3e8e41;
+}
+
+.ediki a:focus {
+    outline: none;
+    box-shadow: 0 0 5px #4CAF50;
+}
+
+
+
+
+</style>
+
+<body>
+
+    <!--NavBar Start-->
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-top" id="sidebarTop"></div>
+        <a href="#" onclick="toggleSidebar()" class="close-btn">&times;</a>
+        <a href="index.html" id="homeLink">Home</a>
+        <a href="inbox.html">Inbox</a>
+        <a href="profiles.html" id="profileBtn">Profile</a>
+        <a href="#" onclick="openLogoutPopup()" id="logoutBtn">Log Out</a>
+    </div>
+    <!-- Main content -->
+    <header>
+        <div>
+            <div class="menu-icon" id="sidebarButton" onclick="toggleSidebar()">&#9776;</div>
+        </div>
+        <nav id="navbar">
+        </nav>
+    </header>
+
+    <!-- Bio section -->
+    <div class="bio-section" id="bioSection" style="display: none;">
+    </div>
+
+    <!-- Logout Popup -->
+    <div class="overlay" id="overlay" onclick="closeLogoutPopup()"></div>
+    <div class="popup" id="logoutPopup">
+        <p>Are you sure you want to logout?</p>
+        <a style="color: black;" href="index.html"><button onclick="logout()">Yes</button></a>  
+        <button onclick="closeLogoutPopup()">No</button>
+    </div>   
+    <!--NavBar End-->
+    
+
+    
+    <div id="content" style="display: none;">
+        <div id="profile">
+            <!-- Profile information will be displayed here -->
+        </div>
+    </div>
+
+
+    
+    
+<script src="navbar.js"></script>
+<script>
+    async function fetchUserProfile() {
+        const storedRowIndex = parseInt(localStorage.getItem('rowIndex'), 10);
+
+        if (!storedRowIndex) {
+            alert("No stored row index found. Please enter your credentials.");
+            return;
+        }
+
+        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDv7MQUbN2J6k-mj5UI9RsITtNmwhR1LwkxBc3tQ_aUU984nUy1aEIQIWgVUeOJyKTDVkrggQBqn7n/pub?output=csv&gid=0';
+
+        try {
+            const response = await fetch(csvUrl);
+            const data = await response.text();
+            const rows = data.split('\n').map(row => row.split(','));
+
+            const storedRow = rows[storedRowIndex];
+
+            if (storedRow) {
+                const imgSrc = storedRow[18].trim();
+                const name = storedRow[3].trim();
+                const role = storedRow[2].trim();
+                const fatherName = storedRow[5].trim();
+                const address = storedRow[11].trim();
+                const gender = storedRow[10].trim();
+                const profession = storedRow[15].trim();
+                const joiningDate = storedRow[19].trim();
+                const totalDonation = storedRow[20].trim();
+                const dateOfBirth = storedRow[8].trim();
+                const bloodGroup = storedRow[9].trim();
+                const message = storedRow[21].trim();
+                const attendedEvents = storedRow[22].trim();
+                const bloodDonationTimes = storedRow[17].trim();
+                const columnY = storedRow[24].trim(); // Add this line for column Y
+                const columnZ = storedRow[25].trim(); // Add this line for column Z
+
+                document.getElementById("content").style.display = "block";
+
+                document.getElementById("profile").innerHTML = `
+                    <div class="s1">
+                        <img src="${imgSrc}" alt="Profile Image">
+                        <p>${name}</p>
+                        <p>${role}</p>
+                    </div>
+                    <div class="s2">
+                        <p>${attendedEvents}<br>Events</p>
+                        <p>${totalDonation}<br>Donation</p>
+                        <p>${bloodDonationTimes}<br>Point</p>
+                    </div>
+                    <div class="s3">
+                        <p>Blood Group</p>
+                        <p>${bloodGroup}</p>
+                        <p>Gender</p>
+                        <p>${gender}</p>
+                        <p>Date of Birth</p>
+                        <p>${dateOfBirth}</p>
+                        <p>Father's Name</p>
+                        <p>${fatherName}</p>
+                        <p>Address</p>
+                        <p>${address}</p>
+                        <p>Profession</p>
+                        <p>${profession}</p>
+                        <p>Last Donate</p>
+                        <p>${columnY}</p>
+                        <p>Last Blood Donate</p>
+                        <p>${columnZ}</p>
+                        <p>Joining Date</p>
+                        <p>${joiningDate}</p>
+                    </div>
+
+                <div class="ediki">
+                    <a class="edit" href="editprofiles.html">Edit Profile</a>                  
+                    <a class="edit" href="changepassword.html">Change Password</a>
+                </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
+    const storedRowIndex = localStorage.getItem('rowIndex');
+    if (storedRowIndex) {
+        fetchUserProfile();
+    }
+
+    
+    //color picker
+                function changeColor(newColor) {
+                document.documentElement.style.setProperty('--color', newColor);
+                localStorage.setItem('mainColor', newColor);
+            }
+
+            // Check if there is a saved color in local storage and apply it
+            const savedColor = localStorage.getItem('mainColor');
+            if (savedColor) {
+                changeColor(savedColor);
+            }
+</script>
+</body>
+
+</html>

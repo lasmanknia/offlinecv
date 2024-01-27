@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Face Tracker</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+    <style>
+        #video {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        #emoji {
+            position: absolute;
+            font-size: 30px;
+            transform: translate(-50%, -50%);
+            transition: transform 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <video id="video" playsinline autoplay></video>
+    <canvas id="overlay"></canvas>
+    <div id="emoji">😊</div>
+
+    <script>
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+        if (navigator.getUserMedia) {
+            navigator.getUserMedia({ video: true }, handleVideo, videoError);
+        }
+
+        function handleVideo(stream) {
+            const video = document.getElementById('video');
+            video.srcObject = stream;
+
+            video.addEventListener('play', () => {
+                const overlay = document.getElementById('overlay');
+                const emoji = document.getElementById('emoji');
+                const canvas = faceapi.createCanvasFromMedia(video);
+                document.body.append(canvas);
+
+                const displaySize = { width: video.width, height: video.height };
+                faceapi.matchDimensions(canvas, displaySize);
+
+                const tracker = new faceapi.FaceTracker({ maxDetectedFaces: 1 });
+
+                tracker.addEventListener('track', (event) => {
+                    const context = overlay.getContext('2d');
+                    context.clearRect(0, 0, overlay.width, overlay.height);
+
+                    if (event.detections.length > 0) {
+                        const detection = event.detections[0];
+                        faceapi.draw.drawDetections(overlay, detection);
+
+                        const { x, y, width, height } = detection.box;
+                        const centerX = x + width / 2;
+                        const centerY = y + height / 2;
+
+                        emoji.style.transform = `translate(${centerX}px, ${centerY}px) translate(-50%, -50%)`;
+                    }
+                });
+
+                setInterval(async () => {
+                    const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
+                    tracker.track(detections);
+
+                    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                    faceapi.draw.drawDetections(canvas, detections);
+                }, 100);
+            });
+        }
+
+        function videoError(e) {
+            console.error('Error accessing webcam:', e);
+        }
+    </script>
+</body>
+</html>
